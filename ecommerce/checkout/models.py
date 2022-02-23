@@ -6,7 +6,7 @@ from address.models import Address
 
 # Create your models here.
 class CheckOut(models.Model):
-    first_name = models.CharField(max_length=20, null=True, blank=True)
-    customer = models.ForeignKey(User, on_delete=models.CASCADE,related_name='user', null=True, blank=True)
-    cart = models.ForeignKey(CartItem, on_delete=models.CASCADE,related_name='cart_user', null=True, blank=True)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE,related_name='add', null=True, blank=True)
+
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user', null=True, blank=True)
+    cart = models.ForeignKey(CartItem, on_delete=models.CASCADE, related_name='cart_user', null=True, blank=True)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='add', null=True, blank=True)

@@ -6,9 +6,19 @@ from .serializers import *
 from rest_framework import status
 
 
-class AddressCreateView(generics.ListCreateAPIView):
+class AddressView(generics.ListAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
+
+    def get(self, request, *args, **kwargs):
+        address = Address.objects.all()
+        serializer_class = AddressSerializer(address, many=True)
+        return Response(serializer_class.data)
+
+
+class AddressCreateView(generics.CreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressCreateSerializer
 
 
 class AddressUpdateView(generics.RetrieveUpdateAPIView):
@@ -22,4 +32,3 @@ class AddressUpdateView(generics.RetrieveUpdateAPIView):
             serializer_class.save()
             return Response(serializer_class.data, status=status.HTTP_200_OK)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
-

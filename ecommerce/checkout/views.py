@@ -10,6 +10,16 @@ from rest_framework import status
 
 
 # Create your views here.
+class CheckoutView(generics.ListAPIView):
+    queryset = CheckOut.objects.all()
+    serializer_class = CheckoutSerializer
+
+    def get(self, request, *args, **kwargs):
+        checkout = CheckOut.objects.all()
+        serializer_class = CheckoutViewSerializer(checkout, many=True)
+        return Response(serializer_class.data)
+
+
 class CheckoutCreateView(generics.CreateAPIView):
     queryset = CheckOut.objects.all()
     serializer_class = CheckoutSerializer

@@ -4,16 +4,19 @@ from address.models import Address
 from cart.serializers import CartItemSerializer
 from cart.models import CartItem
 from address.serializers import AddressSerializer, AddressCreateSerializer
-
+# from coupon.serializers import CouponViewSerializer
 from cart.models import Cart
 
 
 class CheckoutViewSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
 
+    # coupon=CouponViewSerializer()
+
     class Meta:
         model = CheckOut
-        fields = ['customer', 'cart', 'address']
+        fields = ['id', 'customer', 'cart', 'address', ]
+        # 'coupon']
 
 
 class CheckoutSerializer(serializers.ModelSerializer):
@@ -31,7 +34,8 @@ class CheckoutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CheckOut
-        fields = ['id', 'customer', 'cart', 'country', 'state', 'city', 'street_address', 'pincode']
+        fields = ['id', 'customer', 'cart', 'country', 'state', 'city', 'street_address', 'pincode', ]
+        # 'coupon']
 
     # def get_cart(self, cart):
     #     # check = cart.cart
@@ -41,6 +45,8 @@ class CheckoutSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         cart = validated_data.pop('cart', None)
         print(cart)
+        # coupon = validated_data.pop('coupon', None)
+        # print(coupon)
 
         # check_cart = validated_data.pop("cart", None)
         customer = validated_data.pop("customer", None)
@@ -53,6 +59,7 @@ class CheckoutSerializer(serializers.ModelSerializer):
                                          pincode=validated_data['pincode'],
                                          )
         print(cart)
-        c = CheckOut.objects.create(cart=cart, customer=customer, address=address)
+        c = CheckOut.objects.create(cart=cart, customer=customer, address=address, )
+        # coupon=coupon)
 
         return address

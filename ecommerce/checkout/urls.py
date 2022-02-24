@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import CheckoutCreateView,CheckoutView
+from .views import CheckoutCreateView, CheckoutView
 
 urlpatterns = [
     path('checkout-view', CheckoutView.as_view(), name='view-checkout'),

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'checkout',
     'address',
     'order',
+    'coupon',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

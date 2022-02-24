@@ -21,7 +21,8 @@ urlpatterns = [
     path('', include('myapp.urls')),
     path('', include('cart.urls')),
     path('', include('checkout.urls')),
-    path('',include('address.urls')),
-    path('',include('order.urls')),
+    path('', include('address.urls')),
+    path('', include('order.urls')),
+    path('', include('coupon.urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]

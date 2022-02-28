@@ -13,19 +13,19 @@ from myapp.models import Product
 # Create your views here.
 class CartGetView(generics.RetrieveAPIView):
     queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
+    serializer_class = CartViewSerializer
 
     def get(self, request):
         cart = CartItem.objects.all()
-        serializer = CartItemSerializer(cart, many=True)
+        serializer = CartViewSerializer(cart, many=True)
         return Response(serializer.data)
 
 
-class CartCreateView(generics.ListCreateAPIView):
+class CartCreateView(generics.CreateAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
 
-    # permission_classes = (IsAuthenticated, AllowAny)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
@@ -35,8 +35,6 @@ class CartCreateView(generics.ListCreateAPIView):
             serializer.create(serializer.validated_data, request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 # class CartUpdateView(generics.RetrieveUpdateAPIView):
 #     # queryset = CartItem.objects.all()
 #     serializer_class = CartItemSerializer
@@ -68,6 +66,7 @@ class CartUpdateQuantityView(generics.UpdateAPIView):
         data = request.data
         cart_item.quantity = data['quantity']
         cart_item.price = product_price * data['quantity']
+
         cart_item.save()
         serializer = CartUpdateSerializer(cart_item)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -90,7 +89,8 @@ class CartDeleteView(generics.DestroyAPIView):
 #         quantity = int(request.data['quantity'])
 #     except Exception as e:
 #         raise ValidationError("enter valid quantity")
-#
+# cart_item = product_price * data['quantity']
+
 #     if quantity > product.quantity:
 #         raise NotAcceptable("Sorry")
 #

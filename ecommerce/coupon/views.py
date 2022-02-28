@@ -4,17 +4,20 @@ from .models import *
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 # Create your views here.
 class CouponViewSerializer(generics.ListAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponViewSerializer
+    permission_classes = [AllowAny]
 
 
 class CouponCreateView(generics.CreateAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponCreateSerializer
+    # permission_classes = [IsAuthenticated]
 
 
 class CouponRetrieveView(generics.RetrieveAPIView):
@@ -31,6 +34,7 @@ class CouponRetrieveView(generics.RetrieveAPIView):
 class CouponUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponUpdateSerializer
+    permission_classes = [IsAuthenticated]
 
     def put(self, request, pk):
         coupon = Coupon.objects.get(pk=pk)
@@ -44,6 +48,7 @@ class CouponUpdateView(generics.RetrieveUpdateAPIView):
 class CouponDeleteView(generics.RetrieveDestroyAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponUpdateSerializer
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         coupon = Coupon.objects.get(pk=self.kwargs['pk'])

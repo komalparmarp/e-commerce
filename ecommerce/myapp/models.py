@@ -99,6 +99,6 @@ class Product(models.Model):
     store_id = models.ForeignKey(StoreOwner, on_delete=models.CASCADE, null=False, blank=True, default=1)
     description = models.TextField(max_length=50)
     product_price = models.PositiveIntegerField()
-    discount_id = models.ForeignKey(Discount, on_delete=models.CASCADE, default=1)
+    # discount_id = models.ForeignKey(Discount, on_delete=models.CASCADE, default=1)
     product_image = models.ImageField(blank=True, null=True)
     quantity = models.PositiveIntegerField(default=1, null=True, blank=True)

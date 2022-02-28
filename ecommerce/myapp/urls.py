@@ -22,7 +22,7 @@ urlpatterns = [
     path('password-reset/<uidb64>/<token>/',
          PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'),
     # path('reset_password', include('django_rest_passwordreset.urls', namespace='reset-password')),
-    path('auth-token/', views.obtain_auth_token),
+    path('auth-token/', views.obtain_auth_token, name='auth-token'),
 
     path('customer/', CustomerView.as_view(), name='customer-view'),
     path('storeowner/', StoreOwnerView.as_view(), name='store-view'),

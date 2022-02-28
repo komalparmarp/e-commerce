@@ -11,7 +11,8 @@ class CouponViewSerializer(serializers.ModelSerializer):
 class CouponCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
-        fields = ['created_by', 'promo_code', 'start_date', 'expire_date', 'max_limit', 'per_user', 'discount_type',
+        fields = ['id', 'created_by', 'promo_code', 'start_date', 'expire_date', 'max_limit', 'per_user',
+                  'discount_type',
                   'discount_amount', 'created_on']
 
 

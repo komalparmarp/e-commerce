@@ -18,4 +18,5 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField(blank=True, null=True)
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name='coupon_cart', null=True, blank=True)
-    total_price = models.PositiveIntegerField(blank=True, null=True)
+    # total_price = models.PositiveIntegerField(blank=True, null=True)
+    total_price = models.DecimalField(max_digits=100, decimal_places=2, default=0.00)

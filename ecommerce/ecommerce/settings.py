@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'address',
     'order',
     'coupon',
+    'Payment',
+
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -144,3 +146,6 @@ EMAIL_HOST_PASSWORD = 'komal@612'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STRIPE_SECRET_KEY = "sk_test_51KYQVuSCUKV9rHL1UH7HC5lEkCZAW9KMwhgwaw9npCjxws0eEzn2h14ByjqknLJpnEROVtdRIpWlP9kG4Ql55vZ000KXyZI5yr"
+STRIPE_PUBLISHEABLE_KEY = "pk_test_51KYQVuSCUKV9rHL1bEej3vjO9aw5TliBN9hnq1o40aAmxof5YpMT9InY99AiO2yqzySBHXvlpYFUedsQiP0YhY9A00QBBVVDRA"

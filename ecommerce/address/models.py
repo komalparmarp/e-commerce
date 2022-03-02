@@ -10,4 +10,3 @@ class Address(models.Model):
     city = models.CharField(max_length=50, null=False, blank=False, default='Gir_Somnath')
     street_address = models.CharField(max_length=50, null=False, blank=False, default='Kodinar')
     pincode = models.PositiveIntegerField(default=False)
-

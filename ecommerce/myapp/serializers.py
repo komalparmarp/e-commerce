@@ -144,7 +144,8 @@ class ResetPasswordEmailRequestSerializer(serializers.HyperlinkedModelSerializer
     redirect_url = serializers.CharField(max_length=500, required=False)
 
     class Meta:
-        fields = ['email', 'url', ]
+        model = User
+        fields = ['email', 'redirect_url', ]
 
 
 # def validate_username(self, username):
@@ -284,7 +285,6 @@ class ProductSerializer(serializers.ModelSerializer):
                 product_price=validated_data['product_price'])
             product.save()
             return product
-
 
 # class CartProductSerializer(serializers.ModelSerializer):
 #     class Meta:

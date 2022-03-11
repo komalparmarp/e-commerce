@@ -84,7 +84,7 @@ class StoreOwner(models.Model):
     store_name = models.CharField(max_length=100, null=True, blank=True)
     store_id = models.PositiveIntegerField(default=0)
     address = models.CharField(max_length=100, null=True)
-    city = models.CharField(max_length=20, choices=CITY_CHOICES)
+    city = models.CharField(max_length=20, null=True, blank=True)
 
 
 class Discount(models.Model):

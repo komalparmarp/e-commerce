@@ -35,6 +35,8 @@ class CartCreateView(generics.CreateAPIView):
             serializer.create(serializer.validated_data, request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # class CartUpdateView(generics.RetrieveUpdateAPIView):
 #     # queryset = CartItem.objects.all()
 #     serializer_class = CartItemSerializer
@@ -70,6 +72,16 @@ class CartUpdateQuantityView(generics.UpdateAPIView):
         cart_item.save()
         serializer = CartUpdateSerializer(cart_item)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CartRetrieveView(generics.RetrieveAPIView):
+    queryset = CartItem.objects.all()
+    serializer_class = CartRetrieveSerializer
+
+    def get(self, request, pk):
+        cart = CartItem.objects.get(pk=pk)
+        serializer = CartRetrieveSerializer(cart)
+        return Response(serializer.data)
 
 
 class CartDeleteView(generics.DestroyAPIView):

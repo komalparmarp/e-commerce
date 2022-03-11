@@ -24,10 +24,14 @@ SECRET_KEY = 'django-insecure-yo=(df+w2k*-)5k**%bn#ys&7!@-)e7pnoe=w=(@988*zy5!tb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.ngrok.io', 'localhost', '127.0.0.1']
 
 # Application definition
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8000',
+    'http://a8ab-103-239-146-99.ngrok.io',
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,7 +49,8 @@ INSTALLED_APPS = [
     'order',
     'coupon',
     'Payment',
-
+    'stripe',
+    'corsheaders',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -61,9 +66,13 @@ REST_FRAMEWORK = {
     # ],
 
 }
+CSRF_COOKIE_HTTPONLY = True
+
 AUTH_USER_MODEL = 'myapp.User'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -137,6 +146,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# , 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
@@ -148,4 +158,6 @@ EMAIL_HOST_PASSWORD = 'komal@612'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STRIPE_SECRET_KEY = "sk_test_51KYQVuSCUKV9rHL1UH7HC5lEkCZAW9KMwhgwaw9npCjxws0eEzn2h14ByjqknLJpnEROVtdRIpWlP9kG4Ql55vZ000KXyZI5yr"
-STRIPE_PUBLISHEABLE_KEY = "pk_test_51KYQVuSCUKV9rHL1bEej3vjO9aw5TliBN9hnq1o40aAmxof5YpMT9InY99AiO2yqzySBHXvlpYFUedsQiP0YhY9A00QBBVVDRA"
+STRIPE_PUBLISHABLE_KEY = "pk_test_51KYQVuSCUKV9rHL1bEej3vjO9aw5TliBN9hnq1o40aAmxof5YpMT9InY99AiO2yqzySBHXvlpYFUedsQiP0YhY9A00QBBVVDRA"
+STRIPE_WEBHOOK_SECRET = "whsec_KaXKUCureqwOrietrw6e3qYljxajwdOR"
+

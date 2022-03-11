@@ -1,28 +1,13 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import *
 from django.db import transaction
-from .helpers import send_forgot_password_email
-import uuid
-from rest_framework.response import Response
-from django.utils.encoding import force_str, DjangoUnicodeDecodeError, smart_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework.exceptions import AuthenticationFailed
 from django.http import HttpResponsePermanentRedirect
 import os
-from rest_framework import status
-from phonenumber_field import phonenumber
-from .utils import Util
-from django.urls import reverse
 
-
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-#         token['username'] = user.username
-#         return token
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,29 +32,22 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             user.is_store_owner = True
         user.save()
-        # customer = Customer.objects.create(user=user)
+
         return user
 
 
-class ChangePasswordSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=True)
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
+class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'old_password', 'new_password',)
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'is_customer',
+                  'is_store_owner']
 
-    def validate(self, data):
-        if not data.get('new_password') or not data.get('old_password'):
-            raise serializers.ValidationError("please enter a password and confirm it ")
 
-        return data
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
 
-    def update(self, user, data):
-        password = data['new_password']
-        user.set_password(password)
-        user.save()
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
 
 
 # password reset by username
@@ -93,51 +71,6 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'error': 'please enter a valid data'})
 
 
-## TRING TO SENT EMAIL FOR  A RESET PASSWORD
-
-
-# class Password(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         field = ['forgot_password_token']
-#         read_only_token = ['forgot_password_token']
-#
-#     def changepassword(request, token):
-#         context = {}
-#         try:
-#             profile_obj = User.objects.filter(forgot_password_token=token).first()
-#             print(profile_obj)
-#         except Exception as e:
-#             pass
-#         return Response("change password")
-#
-#
-# class ResetPasswordSerializer(serializers.ModelSerializer):
-#     username = serializers.CharField(max_length=100)
-#     password = serializers.CharField(max_length=100)
-#
-#     # forgot_password_token = serializers.CharField(max_length=100)
-#
-#     class Meta:
-#         model = User
-#         fields = ['username', 'password', ]
-#
-#     def create(self, validated_data):
-#         try:
-#             username = self.validated_data['username']
-#             if not User.objects.filter(username=username).first():
-#                 raise serializers.ValidationError("no user found in this username")
-#             user_obj = User.objects.get(username=username)
-#             token = str(uuid.uuid4())
-#             profile_obj=User.objects.get(user=user_obj)
-#             profile_obj.forword_password_token=token
-#             send_forgot_password_email(user_obj.email, token)
-#             return Response("email send")
-#
-#         except Exception as e:
-#             print(e)
-#             return Response("successfully send a mail")
-
 class ResetPasswordEmailRequestSerializer(serializers.HyperlinkedModelSerializer):
     email = serializers.EmailField(min_length=2)
 
@@ -148,13 +81,6 @@ class ResetPasswordEmailRequestSerializer(serializers.HyperlinkedModelSerializer
         fields = ['email', 'redirect_url', ]
 
 
-# def validate_username(self, username):
-#     existing = User.objects.filter(username=username).first()
-#     if existing:
-#         raise serializers.ValidationError("Someone with that username already exist")
-#     return username
-#
-#
 class CustomRedirect(HttpResponsePermanentRedirect):
     allowed_schemes = [os.environ.get('APP_SCHEME'), 'http', 'https']
 
@@ -172,37 +98,31 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
     def validate(self, attrs):
 
-        uidb64 = attrs.pop('uidb64', None)
-        token = attrs.get('token', None)
-
-        redirect_url = self.context['request'].GET.get('redirect_url')
         try:
-            id = smart_str(urlsafe_base64_decode(uidb64))
+            password = attrs.get('password')
+            uidb64 = attrs.pop('uidb64', None)
+            token = attrs.get('token', None)
+            id = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=id)
 
             if not PasswordResetTokenGenerator().check_token(user, token):
-                if len(redirect_url) > 3:
-                    return CustomRedirect(redirect_url + '?token_valid=False')
-                else:
-                    return CustomRedirect(os.environ.get('FRONTEND_URL', '') + '?token_valid=False')
+                raise AuthenticationFailed('The reset link is invalid', 401)
 
-            if redirect_url and len(redirect_url) > 3:
-                return CustomRedirect(
-                    redirect_url + '?token_valid=True&message=Credentials Valid&uidb64=' + uidb64 + '&token=' + token)
             else:
-                return CustomRedirect(os.environ.get('FRONTEND_URL', '') + '?token_valid=False')
+                user.set_password(password)
+                user.save()
 
-        except DjangoUnicodeDecodeError as identifier:
-            try:
-                if not PasswordResetTokenGenerator().check_token(user):
-                    return CustomRedirect(redirect_url + '?token_valid=False')
-
-            except UnboundLocalError as e:
-                return Response({'error': 'Token is not valid, please request a new one'},
-                                status=status.HTTP_400_BAD_REQUEST)
-
+        except Exception as e:
             raise AuthenticationFailed('The reset link is invalid', 401)
         return super().validate(attrs)
+
+
+class CustomerRetrieveSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Customer
+        fields = "__all__"
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -211,10 +131,8 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
         def create(self, validated_data):
-            print("===============================")
-
             user = User.objects.create(
-
+                username=validated_data['username'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
                 email=validated_data['email'],
@@ -226,15 +144,35 @@ class CustomerSerializer(serializers.ModelSerializer):
             return user
 
 
-class StoreSerializer(serializers.ModelSerializer):
-    # store_id = models.PositiveIntegerField()
-    # store_name = serializers.CharField(max_length=100)
-    # address = serializers.CharField(max_length=100)
-    # city = serializers.CharField(max_length=20, )
-
+class CustomerUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', ]
+        fields = ['username', 'password', 'first_name', 'last_name', 'email', 'phone_number']
+
+    def update(self, instance, validated_data):
+        # instance.user = validated_data.get('user', instance.user)
+        instance.user.username = validated_data.get('username', instance.user.username)
+        instance.user.password = validated_data.get('password', instance.user.password)
+        instance.user.first_name = validated_data.get('first_name', instance.user.first_name)
+        instance.user.last_name = validated_data.get('last_name', instance.user.last_name)
+        instance.user.email = validated_data.get('email', instance.user.email)
+        instance.user.phone_number = validated_data.get('phone_number', instance.user.phone_number)
+        instance.user.save()
+        return instance
+
+
+class StoreOwnerSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = StoreOwner
+        fields = '__all__'
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
 
         def create(self, validated_data):
             user = User.objects.create(
@@ -272,7 +210,8 @@ class DiscountSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = "__all__"
+        fields = ['id', 'product_id', 'product_name', 'store_id', 'description', 'product_price', 'product_image',
+                  'quantity']
 
         def create(self, validated_data):
             print("===============================")
@@ -282,33 +221,7 @@ class ProductSerializer(serializers.ModelSerializer):
                 product_id=validated_data['product_id'],
                 product_name=validated_data['product_name'],
                 description=validated_data['description'],
-                product_price=validated_data['product_price'])
+                product_price=validated_data['product_price'],
+                store_id=validated_data['store_id'])
             product.save()
             return product
-
-# class CartProductSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Product
-#         fields = ['product_name', 'product_price', 'store_id']
-#
-#
-# class CartSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Cart
-#         fields = ['user', 'item', 'quantity']
-#
-#
-# class CartItemSerializer(serializers.ModelSerializer):
-#     item = CartProductSerializer(required=False)
-#
-#     class Meta:
-#         model = Cart
-#         fields = ['item', 'quantity']
-#
-#
-# class CartUpdateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Cart
-#         fields = ['item', 'quantity']
-#
-#

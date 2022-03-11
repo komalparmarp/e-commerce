@@ -24,3 +24,7 @@ class Order(models.Model):
     updated_on = models.DateTimeField(auto_created=True, blank=True, null=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, null=True, blank=True)
     # coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name='coupon_order', null=True, blank=True)
+
+
+class OrderItem(models.Model):
+    pass

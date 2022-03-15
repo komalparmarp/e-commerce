@@ -1,10 +1,8 @@
 from .models import *
 from rest_framework import serializers
 from myapp.models import Product, User
-from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError, NotAcceptable, PermissionDenied
-from rest_framework.response import Response
-from coupon.models import Coupon
+from myapp.serializers import ProductSerializer
 
 
 class CartProductSerializer(serializers.ModelSerializer):
@@ -13,40 +11,54 @@ class CartProductSerializer(serializers.ModelSerializer):
         fields = ['product_id', 'product_name', 'store_id', 'product_price', 'quantity']
 
 
-class CartViewSerializer(serializers.ModelSerializer):
+class CartListCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = "__all__"
+
+
+class CartRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = "__all__"
+
+
+class CartItemViewSerializer(serializers.ModelSerializer):
+    # product = ProductSerializer()
+
     class Meta:
         model = CartItem
-
         fields = '__all__'
 
 
-class CartItemSerializer(serializers.ModelSerializer):
+class CartItemCreateSerializer(serializers.ModelSerializer):
+    # product = ProductSerializer()
+
     class Meta:
         model = CartItem
 
-        fields = ('cart', 'quantity', 'product', 'coupon',)
+        fields = ('cart', 'quantity', 'product', 'coupon', 'price', 'total_price', 'user')
 
     def create(self, validated_data, user):
-        print(validated_data)
+
         product = validated_data['product']
         quantity = validated_data['quantity']
         cart = validated_data['cart']
 
         coupon = validated_data["coupon"]
+        u = validated_data["user"]
         user = self.context.get('request').user
-
-        print(product)
 
         amount = product.product_price * quantity
         coupon_amount = coupon.discount_amount
         if coupon.discount_type == 'F':
             total_price = amount - coupon.discount_amount
-            print(total_price)
+
         else:
             discount = amount * (coupon_amount / 100)
-            print(discount)
+
             total_price = amount - discount
-            print()
+
         coupon_max_limit = coupon.max_limit
         user_limit = coupon.per_user
         if user:
@@ -70,18 +82,19 @@ class CartItemSerializer(serializers.ModelSerializer):
                                     quantity=quantity,
                                     coupon=coupon,
                                     price=amount,
-                                    total_price=total_price)
+                                    total_price=total_price,
+                                    user=u)
 
         return c
 
 
-class CartUpdateSerializer(serializers.ModelSerializer):
+class CartItemUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
-        fields = ('quantity',)
+        fields = ('cart', 'quantity', 'price', 'coupon', 'product', 'total_price')
 
 
-class CartRetrieveSerializer(serializers.ModelSerializer):
+class CartItemRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ['cart', 'product', 'quantity', 'coupon', 'price', 'total_price']

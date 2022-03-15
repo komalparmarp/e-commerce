@@ -32,3 +32,8 @@ class AddressUpdateView(generics.RetrieveUpdateAPIView):
             serializer_class.save()
             return Response(serializer_class.data, status=status.HTTP_200_OK)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        address = Address.objects.get(pk=pk)
+        address.delete()
+        return Response(status=status.HTTP_200_OK, data={'detail': 'address deleted'})

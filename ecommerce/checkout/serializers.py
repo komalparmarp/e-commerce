@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from address.models import Address
-from cart.serializers import CartItemSerializer
+from cart.serializers import CartItemCreateSerializer
 from cart.models import CartItem
 from address.serializers import AddressSerializer, AddressCreateSerializer
 # from coupon.serializers import CouponViewSerializer

@@ -188,30 +188,11 @@ class StoreSerializer(serializers.ModelSerializer):
             return user
 
 
-class DiscountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Discount
-        fields = ['discount_id', 'discount_type', 'discount_price']
-
-    def validate(self, attrs):
-        disc = Discount.objects.get(discount_price='discount_price')
-        product = Product.objects.get(product_price='product_price')
-
-        if disc.discount_type == 'flat':
-            discount = product.product_price - disc.discount_price
-
-        else:
-            amount = product.product_price * (disc.discount_price / 100)
-            discount = product.product_price - amount
-
-        return discount
-
-
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'product_id', 'product_name', 'store_id', 'description', 'product_price', 'product_image',
-                  'quantity']
+                  ]
 
         def create(self, validated_data):
             print("===============================")

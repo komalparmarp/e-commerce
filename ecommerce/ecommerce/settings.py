@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['.ngrok.io', 'localhost', '127.0.0.1']
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:8000',
-    'http://a8ab-103-239-146-99.ngrok.io',
+    'http://972c-103-239-146-99.ngrok.io',
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -160,4 +160,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STRIPE_SECRET_KEY = "sk_test_51KYQVuSCUKV9rHL1UH7HC5lEkCZAW9KMwhgwaw9npCjxws0eEzn2h14ByjqknLJpnEROVtdRIpWlP9kG4Ql55vZ000KXyZI5yr"
 STRIPE_PUBLISHABLE_KEY = "pk_test_51KYQVuSCUKV9rHL1bEej3vjO9aw5TliBN9hnq1o40aAmxof5YpMT9InY99AiO2yqzySBHXvlpYFUedsQiP0YhY9A00QBBVVDRA"
 STRIPE_WEBHOOK_SECRET = "whsec_KaXKUCureqwOrietrw6e3qYljxajwdOR"
-

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import *
 
-# Register your models here
-admin.site.register(PaymentGateway)
 
+# Register your models here
+@admin.register(PaymentGateway)
+class AdminOrder(admin.ModelAdmin):
+    list_display = ['id', 'order_id']

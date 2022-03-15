@@ -1,65 +1,35 @@
-from django.shortcuts import render
-from rest_framework import generics
-from rest_framework import status
 from rest_framework.response import Response
-from .models import *
 from .serializers import *
-from rest_framework import viewsets
+from rest_framework.decorators import APIView
+from cart.models import Cart, CartItem
 
 
-# Create your views here.
-class OrderView(generics.ListAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderViewSerializer
+class OrderAPI(APIView):
+    def get(self, request):
+        queryset = Order.objects.all()
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data)
 
+    def post(self, request):
+        user = request.user
+        data = request.data
+        print("====================================", data)
+        cart = Cart.objects.get(user=request.user)
+        print(cart)
+        cart_items = CartItem.objects.filter(cart=cart)
 
-class OrderCreateView(generics.CreateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderCreateSerializer
+        print(cart_items)
+        if cart_items:
+            order = Order(user=user, order_status=data['order_status'])
+            order.save()
+        else:
+            return Response({'error': 'please add a product in cart'})
 
-    # def create(self, request, *args, **kwargs):
+        for item in cart_items:
+            OrderItem.objects.create(user=request.user, product=item.product, price=item.price,
+                                     quantity=item.quantity, order=order, coupon=item.coupon,
+                                     total_price=item.total_price)
 
-
-class OrderRetrieveView(generics.RetrieveAPIView):
-    def get_object(self, pk):
-        return Order.objects.get(pk=pk)
-
-    def get(self, request, pk):
-        coupon = self.get_object(pk)
-        serializer_class = OrderRetrieveSerializer(coupon)
-
-        return Response(serializer_class.data)
-
-
-class OrderUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderUpdateSerializer
-
-    def put(self, request, pk):
-        coupon = Order.objects.get(pk=pk)
-        serializer = OrderUpdateSerializer(coupon, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class OrderDeleteView(generics.RetrieveDestroyAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderUpdateSerializer
-
-    def delete(self, request, *args, **kwargs):
-        coupon = Order.objects.get(pk=self.kwargs['pk'])
-        coupon.delete()
-
-        return Response("Coupon Success-fully Delete", status=status.HTTP_400_BAD_REQUEST)
-
-# class OrderViewSet(viewsets.ModelViewSet):
-#     """
-#         This viewset automatically provides `list`, `create`, `retrieve`,
-#         update` and `destroy` actions for Coupon model.
-#     """
-#     queryset = Order.objects.all()
-#     serializer_class = OrderCreateSerializer
-#     # permission_classes = [IsAuthenticatedOrReadOnly]
-#     # authentication_classes = [TokenAuthentication]
+        # for item in cart_items:
+        #     item.delete()
+        return Response({"order_id": order.id, "order_amount": order.total_amount, "order_status": order.order_status})

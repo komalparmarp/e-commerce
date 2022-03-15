@@ -251,20 +251,6 @@ class StoreDeleteView(generics.DestroyAPIView):
         return Response(status=status.HTTP_200_OK, data={'detail': 'store deleted'})
 
 
-class DiscountView(generics.ListCreateAPIView):
-    queryset = Discount.objects.all()
-    serializer_class = DiscountSerializer
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return serializers.ValidationError("Sorry,You Can't Get Discount Right now")
-
-
 class ProductView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer

@@ -2,89 +2,88 @@ from django.shortcuts import render
 from .serializers import *
 from .models import *
 from rest_framework import generics
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.exceptions import ValidationError, PermissionDenied, NotAcceptable
-from myapp.models import Product
 
 
-# Create your views here.
-class CartGetView(generics.RetrieveAPIView):
+class CartListCreateView(generics.ListCreateAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartListCreateSerializer
+
+
+class CartRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartRetrieveUpdateDeleteSerializer
+
+    def delete(self, request, pk):
+        s = Cart.objects.get(pk=pk)
+        s.delete()
+        return Response(status=status.HTTP_200_OK, data={'detail': 'Your Cart Is Successfully Deleted'})
+
+
+class CartItemGetView(generics.RetrieveAPIView):
     queryset = CartItem.objects.all()
-    serializer_class = CartViewSerializer
+    serializer_class = CartItemViewSerializer
 
     def get(self, request):
         cart = CartItem.objects.all()
-        serializer = CartViewSerializer(cart, many=True)
+        serializer = CartItemViewSerializer(cart, many=True)
         return Response(serializer.data)
 
 
-class CartCreateView(generics.CreateAPIView):
+class CartItemCreateView(generics.CreateAPIView):
     queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
+    serializer_class = CartItemCreateSerializer
 
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
-        print(serializer)
+
         if serializer.is_valid():
-            # serializer.save()
-            serializer.create(serializer.validated_data, request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            data = serializer.create(serializer.validated_data, request.user)
+            data = CartItemViewSerializer(data).data
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class CartUpdateView(generics.RetrieveUpdateAPIView):
-#     # queryset = CartItem.objects.all()
-#     serializer_class = CartItemSerializer
-#
-#     def get_object(self, pk):
-#         try:
-#             return CartItem.objects.get(pk=pk)
-#         except:
-#             raise ValidationError("objects dosen't exist")
-#
-#     def patch(self, request, pk):
-#         cart = self.get_object(pk=pk)
-#         print(cart)
-#         serializer = self.serializer_class(cart, data=request.data)
-#         if serializer.is_valid():
-#             serializer.update(cart, serializer.validated_data)
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_200_OK)
-#
-class CartUpdateQuantityView(generics.UpdateAPIView):
+class CartItemUpdateQuantityView(generics.UpdateAPIView):
     queryset = CartItem.objects.all()
-    serializer_class = CartUpdateSerializer
+    serializer_class = CartItemUpdateSerializer
     permission_classes = [AllowAny]
 
     def put(self, request, *args, **kwargs):
         cart_item = CartItem.objects.get(pk=self.kwargs['pk'])
         product_price = cart_item.product.product_price
+        dis = cart_item.coupon.discount_amount
+        dis_type = cart_item.coupon.discount_type
         data = request.data
         cart_item.quantity = data['quantity']
         cart_item.price = product_price * data['quantity']
 
+        if dis_type == 'F':
+            cart_item.total_price = cart_item.price - dis
+        else:
+            discount = cart_item.price - (dis / 100)
+            cart_item.total_price = cart_item.price - discount
+
         cart_item.save()
-        serializer = CartUpdateSerializer(cart_item)
+        serializer = CartItemUpdateSerializer(cart_item)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CartRetrieveView(generics.RetrieveAPIView):
+class CartItemRetrieveView(generics.RetrieveAPIView):
     queryset = CartItem.objects.all()
-    serializer_class = CartRetrieveSerializer
+    serializer_class = CartItemRetrieveSerializer
 
     def get(self, request, pk):
         cart = CartItem.objects.get(pk=pk)
-        serializer = CartRetrieveSerializer(cart)
+        serializer = CartItemRetrieveSerializer(cart)
         return Response(serializer.data)
 
 
-class CartDeleteView(generics.DestroyAPIView):
+class CartItemDeleteView(generics.DestroyAPIView):
     queryset = CartItem.objects.all()
     permission_classes = [AllowAny]
 
@@ -92,23 +91,3 @@ class CartDeleteView(generics.DestroyAPIView):
         cart = CartItem.objects.get(pk=pk)
         cart.delete()
         return Response(status=status.HTTP_200_OK, data={'detail': 'cart-item deleted'})
-
-# def validate(self, attrs):
-#
-#     if current_item.count() > 0:
-#         raise NotAcceptable("You already have this cart")
-#     try:
-#         quantity = int(request.data['quantity'])
-#     except Exception as e:
-#         raise ValidationError("enter valid quantity")
-# cart_item = product_price * data['quantity']
-
-#     if quantity > product.quantity:
-#         raise NotAcceptable("Sorry")
-#
-#     cart_item = CartItem(cart=cart, product=product, quantity=quantity)
-#     cart_item.save()
-# serializer = CartItemSerializer(cart_item)
-# total = float(product.product_price) * float(quantity)
-# cart.save()
-# return Response(serializer.data, status=status.HTTP_201_CREATED)

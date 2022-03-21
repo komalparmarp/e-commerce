@@ -11,10 +11,6 @@ from order.models import Order
 stripe.api_key = settings.STRIPE_SECRET_KEY
 endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
-#
-#
-print("=========================================Stripe Payment========================================")
-
 
 class PaymentGateWayView(APIView):
     def get(self, request):

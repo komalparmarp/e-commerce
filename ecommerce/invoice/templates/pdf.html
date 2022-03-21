@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <title> Invoice </title>
+</head>
+<body>
+
+<!--<h2 class="text-center"> Order Invoice </h2>-->
+<h1 style="color:black ; font-size:25px" align="center" f>Order Invoice</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-6 text-center">
+            <h1><p>User Details:-</p></h1>
+            username: {{user.username}} <br>
+            email: {{user.email}}
+            <br>
+
+            <hr>
+
+            <h1><p>Payment Details:-</p></h1>
+            payment_method: {{payment.payment_type}} <br>
+            payment_status: {{payment.status}} <br>
+            payment_amount: {{payment.payment_price}} <br>
+            <br>
+
+            <hr>
+
+        </div>
+        <hr>
+        <div class="col-6 text-center">
+            <h1><p>Order Details:-</p></h1>
+
+            Total Amount: {{order.total_amount}}
+
+            <br>
+            <hr>
+            <h1><p>Order Item:-</p></h1>
+            {% if order_item %}
+                {% for item in order_item %}
+                    Item {{forloop.counter}}: <br>
+                    Product Name: {{item.product.product_name}} <br>
+                    Product Price: {{item.product.product_price}} <br>
+                    Product Quantity: {{item.quantity}} <br>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

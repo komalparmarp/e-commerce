@@ -53,7 +53,13 @@ INSTALLED_APPS = [
     'corsheaders',
     'invoice',
     'xhtml2pdf',
+    'drf_yasg2',
+    'wkhtmltopdf',
+
+
 ]
+# WKHTMLTOPDF_CMD = '/path/to/my/wkhtmltopdf'
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,

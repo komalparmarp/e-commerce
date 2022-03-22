@@ -8,7 +8,7 @@
     <title> Invoice </title>
 </head>
 <body>
-
+{{order_item}}
 <!--<h2 class="text-center"> Order Invoice </h2>-->
 <h1 style="color:black ; font-size:25px" align="center" f>Order Invoice</h1>
 
@@ -23,6 +23,7 @@
             <hr>
 
             <h1><p>Payment Details:-</p></h1>
+
             payment_method: {{payment.payment_type}} <br>
             payment_status: {{payment.status}} <br>
             payment_amount: {{payment.payment_price}} <br>

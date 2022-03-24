@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'xhtml2pdf',
     'drf_yasg2',
     'wkhtmltopdf',
+    # 'django_filter',
 
 
 ]
